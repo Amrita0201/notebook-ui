@@ -15,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
         flexDirection: 'row',
         height: 48,
         alignItems: 'center',
+        zIndex: 5
     },
     leftbar: {
         display: 'inline-flex',

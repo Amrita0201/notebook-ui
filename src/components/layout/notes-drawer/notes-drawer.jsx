@@ -1,6 +1,9 @@
 import React from 'react';
 import DrawerButton from '../common/drawer-button';
 import Drawer from '../../UI/drawer';
+import List from '../../UI/list';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 
 const drawerStyles = (theme) => ({
     paper: {
@@ -19,6 +22,14 @@ const drawerStyles = (theme) => ({
 const notesDrawer = () =>{
     return (
         <Drawer variant='persistent' anchor='left' open={true} fn={drawerStyles}> 
+            <List>
+                <ListItem>
+                    <ListItemText primary="Ravioli" secondary="Recipe for Ravioli" />
+                </ListItem>
+                <ListItem>
+                    <ListItemText primary="Lasagne" secondary="Recipe for Lasagne" />
+                </ListItem>
+            </List>
             <DrawerButton>Add note</DrawerButton>
         </Drawer>
     );

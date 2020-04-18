@@ -4,6 +4,9 @@ import Drawer from '../../UI/drawer';
 import SearchBar from './search-bar';
 import BottomBar from './bottomBar';
 import DrawerButton from '../common/drawer-button';
+import List from '../../UI/list';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 
 const drawerStyles = (theme) => ({
     paper: {
@@ -23,6 +26,14 @@ const notebookDrawer = () => {
     return (
         <Drawer variant="permanent" anchor="left" fn={drawerStyles}>
             <SearchBar />
+            <List>
+                <ListItem>
+                    <ListItemText primary="Asian" secondary="16 Notes" />
+                </ListItem>
+                <ListItem>
+                    <ListItemText primary="Italian" secondary="5 Notes" />
+                </ListItem>
+            </List>
             <DrawerButton>Add Book</DrawerButton>
             <BottomBar />
         </Drawer>
