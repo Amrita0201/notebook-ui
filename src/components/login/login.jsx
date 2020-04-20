@@ -7,6 +7,7 @@ import SignupForm from './signupForm';
 import { Switch, Route } from 'react-router-dom';
 import Container from '../UI/container';
 
+
 const useStyles = makeStyles((theme) => ({
     title: {
         fontFamily: "'Eagle Lake', cursive",
