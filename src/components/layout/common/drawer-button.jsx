@@ -39,7 +39,7 @@ const buttonStyles = (theme) => ({
 const drawerButton = (props) => {
     const classes = useStyles();
     return (
-        <Button variant="contained" fn={buttonStyles}>
+        <Button variant="contained" fn={buttonStyles} onClick={props.onClick}>
             <Icon fontSize="small">add_circle</Icon>
             <span className={classes.text}>
                 {props.children}

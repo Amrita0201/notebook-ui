@@ -1,5 +1,6 @@
 import React from 'react';
 import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -15,7 +16,7 @@ const formInput = (props) => {
                 id={props.id}
                 placeholder={props.placeholder}
                 className={classes.outlinedInput} />
-            {/* <FormHelperText id="my-helper-text">We'll never share your email.</FormHelperText> */}
+            {props.error ? <FormHelperText id="my-helper-text" className={classes.helperText}>{props.error}</FormHelperText> : null}
         </FormControl>
     )
 };

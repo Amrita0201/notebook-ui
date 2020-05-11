@@ -3,6 +3,7 @@ import React from 'react';
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
 import { makeStyles } from '@material-ui/core/styles';
+import axios from '../../axios';
 
 const useStyles = makeStyles((theme) => ({
   search: {
@@ -38,8 +39,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const searchBar = () => {
+const searchBar = (props) => {
   const classes = useStyles();
+
+  const onKeyDownHandler = (e) => {
+    if (e.keyCode === 13 || e.which === 13 || e.charCode === 13 || e.key === 13) {
+      
+    }
+  };
+
   return (
     <div className={classes.search}>
       <div className={classes.searchIcon}>
@@ -51,6 +59,7 @@ const searchBar = () => {
           root: classes.inputRoot,
           input: classes.inputInput,
         }}
+        onKeyDown={onKeyDownHandler}
         inputProps={{ 'aria-label': 'search' }}
       />
     </div>

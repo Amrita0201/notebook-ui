@@ -1,11 +1,12 @@
 /* eslint-disable no-sequences */
 /* eslint-disable react-hooks/rules-of-hooks */
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import FormInput from '../UI/formInput';
 import Button from '../UI/button';
 import { useHistory } from 'react-router-dom';
 import axios from '../axios';
+import AuthContext from '../../context/auth.context';
 
 const useStyles = makeStyles((theme) => ({
     loginForm: {
@@ -58,6 +59,12 @@ const loginStyles = (theme) => ({
             }
         }
     },
+    helperText: {
+        marginLeft: 20,
+        marginTop: 10,
+        color: 'red',
+        fontSize: 13,
+    },
     formControl: {
         width: '100%',
         marginBottom: '40px',
@@ -67,6 +74,7 @@ const loginStyles = (theme) => ({
 const signupForm = () => {
     const classes = useStyles();
     const history = useHistory();
+    const { setLoggedInStatus } = useContext(AuthContext);
     const [inputValues, setInputValues] = useState({
         name: '',
         email: '',
@@ -74,6 +82,11 @@ const signupForm = () => {
         confirmPassword: '',
         isPasswordSame: true,
         isFormValid: false
+    });
+
+    const [error, setError] = useState({
+        status: false,
+        msg: ''
     });
 
     const isFormValid =  useCallback(() => {
@@ -130,7 +143,22 @@ const signupForm = () => {
                 password: inputValues.password
             }).then(res => {
                 console.log(res);
-                history.push('/notebook');
+                axios.post('/login', {
+                    email: inputValues.email,
+                    password: inputValues.password
+                }).then(res => {
+                    setLoggedInStatus(false);
+                    localStorage.setItem('token', res.data.data.token);
+                    localStorage.setItem('user', res.data.data.name);
+                    setLoggedInStatus(true);
+                    history.push('/notebook');
+                });
+            }).catch(err => {
+                console.error(err.response.data);
+                setError({
+                    status: true,
+                    msg: err.response.data.error
+                });
             });
             setInputValues((prevValue) => ({...prevValue, isFormValid: false}));
         }
@@ -140,9 +168,9 @@ const signupForm = () => {
         <form className="row align-items-center justify-content-center" noValidate autoComplete="off" onSubmit={onFormSubmit}>
             <div className={`col-12 col-md-5 col-sm-8 ${classes.signupForm}`}>
                 <FormInput id="name" value={inputValues.name} onChange={(e) => onInputChange(e, 'name')} placeholder="Name" fn={loginStyles} />
-                <FormInput id="email_address" value={inputValues.email} onChange={(e) => onInputChange(e, 'email')} placeholder="Email Address" fn={loginStyles} />
+                <FormInput error={error.msg} id="email_address" value={inputValues.email} onChange={(e) => onInputChange(e, 'email')} placeholder="Email Address" fn={loginStyles} />
                 <FormInput id="password" value={inputValues.password} onChange={(e) => onInputChange(e, 'password')} placeholder="Password" type="password" fn={loginStyles} />
-                <FormInput id="confirm_password" value={inputValues.confirmPassword} onChange={(e) => onInputChange(e, 'confirmPassword')} placeholder="Confirm password" type="password" fn={loginStyles} />
+                <FormInput error={inputValues.isPasswordSame ? '' : 'Password doesn\'t match!'} id="confirm_password" value={inputValues.confirmPassword} onChange={(e) => onInputChange(e, 'confirmPassword')} placeholder="Confirm password" type="password" fn={loginStyles} />
                 <Button variant="contained" fn={buttonStyles} onClick={onFormSubmit} onKeyDown={onFormSubmit} disabled={!inputValues.isFormValid}>
                     Sign Up
                 </Button>

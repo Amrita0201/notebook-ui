@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import React from 'react';
+import React, { useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
+import AuthContext from '../../context/auth.context';
 
 const useStyles = makeStyles((theme) => ({
     navbar: {
@@ -24,9 +25,9 @@ const useStyles = makeStyles((theme) => ({
 
 const navbar = (props) => {
     const classes = useStyles();
-
-    const { isLoggedIn } = props;
-    const user = isLoggedIn ? <div className={classes.user}>Jane Doe</div> : null;
+    const { isLoggedIn } = useContext(AuthContext);
+    const userName = localStorage.getItem('user');
+    const user = isLoggedIn ? <div className={classes.user}>{userName}</div> : null;
     return (
         <AppBar position='relative'>
             <div className={classes.navbar}>

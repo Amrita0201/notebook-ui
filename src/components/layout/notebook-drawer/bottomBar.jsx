@@ -9,32 +9,35 @@ import LabelIcon from '@material-ui/icons/Label';
 
 const useStyles = makeStyles((theme) => ({
     root: {
-      width: '100%',
-      borderTop: '1px solid #f3f3f3',
-      backgroundColor: '#C7B5A7',
-      color: '#fff',
-      '& > button': {
-          color: '#ffff',
-          '&.Mui-selected': {
-              color: '#C7B5A7',
-              backgroundColor: '#fff'
-          }
-      }
+        width: '100%',
+        borderTop: '1px solid #f3f3f3',
+        backgroundColor: '#C7B5A7',
+        color: '#fff',
+        '& > button': {
+            color: '#ffff',
+            '&.Mui-selected': {
+                color: '#C7B5A7',
+                backgroundColor: '#fff'
+            }
+        }
     },
-  }));
+}));
 
-const bottomBar = () => {
+const bottomBar = (props) => {
     const classes = useStyles();
     const [value, setValue] = React.useState(0);
+
+    console.log(value);
 
     return (
         <BottomNavigation
             value={value}
             onChange={(event, newValue) => {
                 setValue(newValue);
+                props.onClickHandler(newValue);
             }}
             showLabels
-            classes={{root: classes.root}}
+            classes={{ root: classes.root }}
         >
             <BottomNavigationAction icon={<LibraryBooksIcon />} />
             <BottomNavigationAction icon={<LabelIcon />} />
