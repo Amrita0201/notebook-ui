@@ -8,19 +8,24 @@ import { useParams } from 'react-router';
 import { useEffect } from 'react';
 
 const layout = () => {
-    const { bookId } = useParams();
+    const { bookId, noteId } = useParams();
     const [showNotesDrawer, setShowNotesDrawer] = useState(false);
+    const [showEditor, setShowEditor] = useState(false);
 
     useEffect(() => {
         setShowNotesDrawer(bookId ? true : false);
     }, [bookId]);
+
+    useEffect(() => {
+        setShowEditor(noteId ? true : false);
+    }, [noteId]);
     
     return (
         <div className="container-fluid">
             <Row>
                 <NotebookDrawer />
                 {showNotesDrawer ? <NotesDrawer /> : null}
-                <RichTextEditor />
+                {showEditor && showNotesDrawer ? <RichTextEditor /> : null}
             </Row>
         </div>
     );

@@ -10,9 +10,10 @@ const routes = () => {
     return (
         <Switch>
             <Route path='/(login|signup)' component={Login} />
-            {isLoggedIn ? <Route path='/notebook/:bookId' component={Layout} /> : <Redirect to="login" />}
-            {isLoggedIn ? <Route path='/notebook' component={Layout} /> : <Redirect to="login" />}
-            <Redirect from="/*" to="login" />
+            {isLoggedIn ? <Route path='/notebook/:bookId/note/:noteId' component={Layout} /> : <Redirect to="/login" />}
+            {isLoggedIn ? <Route path='/notebook/:bookId' component={Layout} /> : <Redirect to="/login" />}
+            {isLoggedIn ? <Route path='/notebook' component={Layout} /> : <Redirect to="/login" />}
+            <Redirect from="/*" to="/login" />
         </Switch>
     )
 }

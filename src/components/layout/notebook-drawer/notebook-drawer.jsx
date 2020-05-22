@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Drawer from '../../UI/drawer';
 import SearchBar from './search-bar';
 import BottomBar from './bottomBar';
@@ -10,6 +10,9 @@ import useAddItem from '../../../hooks/use-add-item.hook';
 import axios from '../../axios';
 import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const drawerStyles = (theme) => ({
     paper: {
@@ -27,7 +30,21 @@ const drawerStyles = (theme) => ({
 
 const useStyles = makeStyles((theme) => ({
     list: {
-        overflow: 'auto'
+        overflow: 'auto',
+        '& .MuiTypography-displayBlock': {
+            display: 'flex',
+            '& span': {
+                flexGrow: 1,
+                flexBasis: 0
+            },
+            '& svg': {
+                color: '#6b6b6b',
+                opacity: 0
+            },
+            '&:hover svg': {
+                opacity: 1
+            }
+        }
     }
 }));
 
@@ -53,26 +70,27 @@ const notebookDrawer = () => {
         addItemToList({ name: '' });
     };
 
-    useEffect(() => {
-        if (focusHack.current > 1) {
-            const lastChildNode = listRef.current.lastElementChild && listRef.current.lastElementChild.firstElementChild && listRef.current.lastElementChild.firstElementChild.firstElementChild;
-            lastChildNode && lastChildNode.focus();
-        }
-        focusHack.current++;
-    }, [listItem, focusHack]);
+    // useEffect(() => {
+    //     if (focusHack.current > 1) {
+    //         const lastChildNode = listRef.current.lastElementChild && listRef.current.lastElementChild.firstElementChild && listRef.current.lastElementChild.firstElementChild.firstElementChild;
+    //         lastChildNode && lastChildNode.focus();
+    //     }
+    //     focusHack.current++;
+    // }, [listItem, focusHack]);
 
     const onBlurCB = (e, text, id, index) => {
-        if (e.target.innerText === '') {
+        const innerText = e.target.innerText;
+        if (innerText === '') {
             alert('Book name can not be empty');
             const items = listItem.slice();
             items.pop();
             setListItem(items);
         }
         else if (text === '') {
-            axios.post('/book', { name: e.target.innerText })
+            axios.post('/book', { name: innerText })
                 .then(res => {
                     console.log(res.data.data);
-                    updateItemList(e.target.innerText, index);
+                    updateItemList(innerText, index);
                 })
                 .catch(err => {
                     console.error(err.response.data);
@@ -80,18 +98,29 @@ const notebookDrawer = () => {
                     items.pop();
                     setListItem(items);
                 });
-        } else if (e.target.innerText !== text) {
-            axios.post(`/book/${id}`, { name: e.target.innerText })
+        } else if (innerText !== text) {
+            axios.post(`/book/${id}`, { name: innerText })
                 .then(res => {
-                    updateItemList(e.target.innerText, index);
+                    updateItemList(innerText, index);
+                    // setTimeout(() => {
+                    //     toast("Book was succefully added!");
+                    // }, 1000);
                 })
                 .catch(err => {
                     console.error(err.response);
                     updateItemList(text, index);
-                })
+                });
         }
     };
 
+    const onDeleteCB = (e, index, id) => {
+        axios.delete(`/book/${id}`)
+            .then(res => {
+                setListItem(listItem.filter((item,i) => index !== i));
+                history.push('/notebook');
+            })
+            .catch(err => console.error(err));
+    };
 
     const onClickCB = (e, id) => {
         history.push(`/notebook/${id}`);
@@ -130,10 +159,11 @@ const notebookDrawer = () => {
 
     return (
         <Drawer variant="permanent" anchor="left" fn={drawerStyles}>
+            <ToastContainer />
             <SearchBar searchType={searchType} setListItem />
             <List ref={listRef} className={classes.list}>
                 {listItem.map((listItem, index) => (
-                    <ListItem key={listItem.name + index} index={index} id={listItem.id} onBlurCB={onBlurCB} primary={listItem.name} onClick={onClickCB} secondary={`${listItem.numOfNotes ? listItem.numOfNotes : '0'} Notes`} />
+                    <ListItem key={listItem.name + index} index={index} onDeleteCB={onDeleteCB} id={listItem.id} primary={listItem.name} onBlurCB={onBlurCB} onClick={onClickCB} secondary={`${listItem.numOfNotes ? listItem.numOfNotes : '0'} Notes`} />
                 ))}
             </List>
             <DrawerButton onClick={onAddBook}>Add Book</DrawerButton>

@@ -7,7 +7,8 @@ import { makeStyles } from '@material-ui/core';
 import Chip from '@material-ui/core/Chip';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import StarIcon from '@material-ui/icons/Star';
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import axios from '../../axios';
+import { useParams } from 'react-router';
 
 const useStyles = makeStyles((theme) => ({
     appbar: {
@@ -63,6 +64,7 @@ const useStyles = makeStyles((theme) => ({
         cursor: 'pointer'
     },
     star: {
+        margin: '0 12px 0 6px',
         cursor: 'pointer',
         display: 'inline-flex'
     }
@@ -71,28 +73,50 @@ const useStyles = makeStyles((theme) => ({
 const handleClick = () => { };
 const handleDelete = () => { };
 
-const appBar = () => {
+const appBar = (props) => {
+    const { tags, setTags } = props;
     const classes = useStyles();
+    const { bookId, noteId } = useParams();
     const [isStarred, setIsStarred] = useState(false);
 
     const starOnClickHanlder = () => setIsStarred((currentVal) => !currentVal);
+    const onKeyDownHandler = (e) => {
+        if ((e.keyCode === 13 || e.which === 13 || e.charCode === 13 || e.key === 13) && e.target.value.trim() !== '') {
+            const tagName = e.target.value;
+            let addTag = true;
+            if (tags) {
+                addTag = !!!tags.filter(tag => tag.name === tagName).length;
+            }
+            addTag && axios.post(`/book/${bookId}/note/${noteId}`, { name: tagName })
+                .then(res => {
+                    if (tags) {
+                        setTags(tags.concat([{ name: tagName }]));
+                    } else {
+                        setTags([{ name: tagName }])
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+    };
 
     return (
         <AppBar position="static" className={classes.appbar}>
             <div className={classes.leftbar}>
                 <LabelIcon className={classes.labelicon} />
-                <OutlinedInput id="tags" placeholder="Tags" className={classes.outlinedinput} />
+                <OutlinedInput id="tags" placeholder="Tags" onKeyDown={onKeyDownHandler} className={classes.outlinedinput} />
                 <div>
-                    <Chip label="TagName"
-                        onClick={handleClick}
-                        onDelete={handleDelete} className={classes.chip} />
+                    {props.tags && props.tags.map(tag => (
+                        <Chip key={tag.name} label={tag.name}
+                            onClick={handleClick}
+                            onDelete={handleDelete} className={classes.chip} />
+                    ))}
                 </div>
             </div>
             <div className={classes.rightbar}>
                 <div onClick={starOnClickHanlder} className={classes.star}>
                     {isStarred ? <StarIcon /> : <StarBorderIcon />}
                 </div>
-                <MoreHorizIcon className={classes.dotsMenu}/>
+                {/* <MoreHorizIcon className={classes.dotsMenu}/> */}
             </div>
         </AppBar>
     );

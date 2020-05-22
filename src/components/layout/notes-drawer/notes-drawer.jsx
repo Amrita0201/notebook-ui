@@ -25,7 +25,26 @@ const drawerStyles = (theme) => ({
 
 const useStyles = makeStyles((theme) => ({
     list: {
-        overflow: 'auto'
+        overflow: 'auto',
+        '& p': {
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+        },
+        '& .MuiTypography-displayBlock': {
+            display: 'flex',
+            '& span': {
+                flexGrow: 1,
+                flexBasis: 0
+            },
+            '& svg': {
+                color: '#6b6b6b',
+                opacity: 0
+            },
+            '&:hover svg': {
+                opacity: 1
+            }
+        }
     }
 }));
 
@@ -33,7 +52,6 @@ const notesDrawer = (props) => {
     const [listItem, setListItem, addItemToList, updateItemList] = useAddItem([]);
     const { bookId } = useParams();
     const history = useHistory();
-    const focusHack = useRef(0);
     const classes = useStyles();
     const listRef = useRef(null);
 
@@ -52,27 +70,19 @@ const notesDrawer = (props) => {
             });
     }, [bookId]);
 
-    useEffect(() => {
-        if (focusHack.current > 1) {
-            const lastChildNode = listRef.current.lastElementChild && listRef.current.lastElementChild.firstElementChild && listRef.current.lastElementChild.firstElementChild.firstElementChild;
-            lastChildNode && lastChildNode.focus();
-        }
-        focusHack.current++;
-    }, [listItem, focusHack]);
-
     const onBlurCB = (e, text, id, index) => {
-        console.dir(e);
-        if (e.target.innerText === '') {
-            alert('Book name can not be empty');
+        const innerText = e.target.innerText;
+        if (innerText === '') {
+            alert('Note name can not be empty');
             const items = listItem.slice();
             items.pop();
             setListItem(items);
         }
         else if (text === '') {
-            axios.post('/book', { name: e.target.innerText })
+            axios.post(`/book/${bookId}/note`, { name: innerText, content: '', subHeader: '' })
                 .then(res => {
                     console.log(res.data.data);
-                    updateItemList(e.target.innerText, index);
+                    updateItemList(innerText, index);
                 })
                 .catch(err => {
                     console.error(err.response.data);
@@ -80,16 +90,25 @@ const notesDrawer = (props) => {
                     items.pop();
                     setListItem(items);
                 });
-        } else if (e.target.innerText !== text) {
-            axios.post(`/book/${id}`, { name: e.target.innerText })
+        } else if (innerText !== text) {
+            axios.put(`/book/${bookId}/note/${id}`, { name: innerText })
                 .then(res => {
-                    updateItemList(e.target.innerText, index);
+                    updateItemList(innerText, index);
                 })
                 .catch(err => {
                     console.error(err.response);
                     updateItemList(text, index);
                 })
         }
+    };
+
+    const onDeleteCB = (e, index, id) => {
+        axios.delete(`/book/${bookId}/note/${id}`)
+            .then(res => {
+                setListItem(listItem.filter((item,i) => index !== i));
+                history.push(`/notebook/${bookId}/note/`);
+            })
+            .catch(err => console.error(err));
     };
 
     const onClickCB = (e, id) => {
@@ -100,7 +119,7 @@ const notesDrawer = (props) => {
         <Drawer variant='persistent' anchor='left' open={true} fn={drawerStyles}>
             <List ref={listRef} className={classes.list}>
                 {listItem.map((listItem, index) => (
-                    <ListItem key={listItem.name + index} index={index} id={listItem.id} onBlurCB={onBlurCB} primary={listItem.name} onClick={onClickCB} secondary={`${listItem.content ? listItem.content : ''}`} />
+                    <ListItem key={listItem.name + index} index={index} id={listItem.id} onDeleteCB={onDeleteCB} onBlurCB={onBlurCB} primary={listItem.name} onClick={onClickCB} secondary={`${listItem.subHeader ? listItem.subHeader : ''}`} />
                 ))}
             </List>
             <DrawerButton onClick={onAddNote}>Add note</DrawerButton>
